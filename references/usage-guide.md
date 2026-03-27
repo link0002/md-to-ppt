@@ -8,8 +8,9 @@
 2. [布局配置](#布局配置)
 3. [Mermaid 图表处理](#mermaid-图表处理)
 4. [内联格式](#内联格式)
-5. [高级示例](#高级示例)
-6. [故障排除](#故障排除)
+5. [引述格式](#引述格式)
+6. [高级示例](#高级示例)
+7. [故障排除](#故障排除)
 
 ## 基础用法
 
@@ -20,6 +21,7 @@ node scripts/md_to_ppt.js -i input.md -o output.pptx
 ```
 
 这将使用默认设置：
+
 - **竖版布局** (7.5" × 10.83")
 - **微软雅黑** 字体
 - 标题为 "技术文档"
@@ -50,6 +52,7 @@ node scripts/md_to_ppt.js \
 ```
 
 竖版布局特点：
+
 - 4 行母版布局结构
 - 第 1 行：主标题框 + 页码框
 - 第 2 行：三级标题框
@@ -95,27 +98,28 @@ node scripts/md_to_ppt.js \
 
 ### 支持的图表类型（7 种）
 
-| 图表类型 | 关键词 | 示例 |
-|---------|--------|------|
-| 流程图 | `graph TD`, `graph LR` | 系统流程、决策树 |
-| 时序图 | `sequenceDiagram` | 多方交互、API 调用 |
-| 类图 | `classDiagram` | 类结构、关系图 |
-| 状态图 | `stateDiagram`, `stateDiagram-v2` | 状态机、生命周期 |
-| 甘特图 | `gantt` | 项目计划、里程碑 |
-| 饼图 | `pie` | 数据占比分析 |
-| 思维导图 | `mindmap` | 层级结构、脑图 |
+| 图表类型 | 关键词                                | 示例               |
+| -------- | ------------------------------------- | ------------------ |
+| 流程图   | `graph TD`, `graph LR`            | 系统流程、决策树   |
+| 时序图   | `sequenceDiagram`                   | 多方交互、API 调用 |
+| 类图     | `classDiagram`                      | 类结构、关系图     |
+| 状态图   | `stateDiagram`, `stateDiagram-v2` | 状态机、生命周期   |
+| 甘特图   | `gantt`                             | 项目计划、里程碑   |
+| 饼图     | `pie`                               | 数据占比分析       |
+| 思维导图 | `mindmap`                           | 层级结构、脑图     |
 
 ### 渲染格式
 
 **支持三种输出格式**：
 
-| 格式  | 说明 | 可编辑性 | 依赖 |
-|-------|------|----------|------|
-| **EMF** | 默认格式，最佳 PPT 兼容性 | ✅ 原生可编辑（取消组合） | Inkscape |
-| **SVG** | 矢量图，作为图片嵌入 | ⚠️ 需手动转换或使用 `--convert-svg-to-shapes` | 无 |
-| **PNG** | 光栅图，最高兼容性 | ❌ | 无 |
+| 格式          | 说明                      | 可编辑性                       | 依赖     |
+| ------------- | ------------------------- | ------------------------------ | -------- |
+| **EMF** | 默认格式，最佳 PPT 兼容性 | ✅ 原生可编辑（取消组合）      | Inkscape |
+| **SVG** | 矢量图，作为图片嵌入      | ⚠️ 可在 PPT 中手动转换为形状 | 无       |
+| **PNG** | 光栅图，最高兼容性        | ❌                             | 无       |
 
 **安装依赖**：
+
 ```bash
 # mermaid-cli（必需）
 npm install -g @mermaid-js/mermaid-cli
@@ -216,16 +220,16 @@ gantt
 
 ## 内联格式
 
-支持在段落和列表中使用内联格式：
+支持在段落、列表和表格中使用内联格式：
 
-| 格式 | 语法 | 效果 |
-|------|------|------|
-| 加粗 | `**文本**` 或 `__文本__` | **粗体** |
-| 斜体 | `*文本*` 或 `_文本_` | *斜体* |
+| 格式     | 语法                             | 效果                 |
+| -------- | -------------------------------- | -------------------- |
+| 加粗     | `**文本**` 或 `__文本__`     | **粗体**       |
+| 斜体     | `*文本*` 或 `_文本_`         | *斜体*             |
 | 加粗斜体 | `***文本***` 或 `___文本___` | ***粗斜体*** |
-| 行内代码 | `` `代码` `` | `代码` |
+| 行内代码 | `` `代码` ``                     | `代码`             |
 
-### 示例
+### 段落和列表中的内联格式
 
 ```markdown
 这是包含 **加粗文本**、*斜体文本* 和 `行内代码` 的段落。
@@ -235,26 +239,65 @@ gantt
 - `代码`：这是包含代码的列表项
 ```
 
+### 表格中的内联格式
+
+表格单元格支持内联格式：
+
+```markdown
+| 功能 | 状态 | 说明 |
+|------|------|------|
+| **加粗** | ✅ | 测试加粗 |
+| *斜体* | ✅ | 测试斜体 |
+| `代码` | ✅ | 测试代码 |
+```
+
+## 引述格式
+
+使用 `>` 开头的行创建引述块，支持多行和内联格式：
+
+### 基础引述
+
+```markdown
+> 这是一段引述内容。
+```
+
+效果：浅蓝背景框 + 💡 图标
+
+### 多行引述
+
+```markdown
+> 这是第一行引述。
+> 这是第二行引述。
+> 这是第三行引述。
+```
+
+### 引述中的内联格式
+
+```markdown
+> 这段引述包含 **加粗**、*斜体* 和 `代码` 格式。
+```
+
 ## 高级示例
 
-### 示例 1: CVP2.0 技术文档
+### 示例 1: 完整的技术文档转换
 
-完整的技术文档转换，使用竖版布局：
+使用竖版布局转换技术文档：
 
 ```bash
 node scripts/md_to_ppt.js \
-  -i CVP2.0控制算法技术文档.md \
-  -o CVP2.0技术演示.pptx \
+  -i 技术文档.md \
+  -o 技术演示.pptx \
   -l portrait \
   -w 7.5 \
   -h 10.83 \
   -f 微软雅黑 \
-  -t "CVP2.0控制算法技术文档"
+  -t "技术文档"
 ```
 
 ### 示例 2: 指定 Mermaid 输出格式
 
 **EMF 格式（默认，推荐）**：
+
 ```bash
 node scripts/md_to_ppt.js \
   -i document.md \
@@ -263,6 +306,7 @@ node scripts/md_to_ppt.js \
 ```
 
 **SVG 格式（作为图片嵌入）**：
+
 ```bash
 node scripts/md_to_ppt.js \
   -i document.md \
@@ -271,28 +315,12 @@ node scripts/md_to_ppt.js \
 ```
 
 **PNG 格式（最高兼容性）**：
+
 ```bash
 node scripts/md_to_ppt.js \
   -i document.md \
   -o output.pptx \
   --mermaid-format png
-```
-
-**SVG + 可编辑形状转换**：
-```bash
-# 全部转换为可编辑形状
-node scripts/md_to_ppt.js \
-  -i document.md \
-  -o output.pptx \
-  --mermaid-format svg \
-  --convert-svg-to-shapes
-
-# 只转换简单图表（复杂度 ≤ 50）
-node scripts/md_to_ppt.js \
-  -i document.md \
-  -o output.pptx \
-  --mermaid-format svg \
-  --convert-svg-to-shapes 50
 ```
 
 ### 示例 3: 不渲染 Mermaid 图表
@@ -358,6 +386,8 @@ wait
 
 ### 表格格式
 
+基础表格：
+
 ```markdown
 | 参数名 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
@@ -365,6 +395,16 @@ wait
 | height | number | 10.83 | 幻灯片高度(英寸) |
 | layout | string | portrait | 布局方向 |
 | font | string | 微软雅黑 | 字体名称 |
+```
+
+表格内联格式：
+
+```markdown
+| 功能 | 状态 | 说明 |
+|------|------|------|
+| **加粗** | ✅ | 重要功能 |
+| *斜体* | ⚠️ | 注意事项 |
+| `代码` | 🔧 | 配置项 |
 ```
 
 ### 代码块
@@ -387,6 +427,7 @@ def convert_md_to_ppt(input_file, output_file):
 v2.0 自动计算内容高度，当内容超过可用空间时自动创建新幻灯片。
 
 无需手动分页，以下情况会自动触发分页：
+
 - 列表项过多
 - 多个代码块
 - 多个 Mermaid 图表
@@ -399,6 +440,7 @@ v2.0 自动计算内容高度，当内容超过可用空间时自动创建新幻
 **原因**: 未安装 mermaid-cli
 
 **解决方案**:
+
 ```bash
 # 检查 mmdc 是否可用
 mmdc --version
@@ -415,6 +457,7 @@ node scripts/md_to_ppt.js -i doc.md -o out.pptx --no-mermaid
 **原因**: 单页内容过多
 
 **解决方案**:
+
 - v2.0 已支持智能分页，会自动创建新幻灯片
 - 如仍有问题，考虑手动添加二级标题(##)来分页
 
@@ -423,6 +466,7 @@ node scripts/md_to_ppt.js -i doc.md -o out.pptx --no-mermaid
 **原因**: 系统未安装指定字体
 
 **解决方案**:
+
 - 使用系统已安装的字体
 - 常见中文字体: 微软雅黑、宋体、黑体、楷体
 - 检查字体是否已安装: 在 PowerPoint 中查看可用字体
@@ -432,6 +476,7 @@ node scripts/md_to_ppt.js -i doc.md -o out.pptx --no-mermaid
 **原因**: 脚本被中断
 
 **解决方案**:
+
 - 手动清理临时目录: `%TEMP%\md-to-ppt-mermaid\`
 - Windows: `C:\Users\<用户名>\AppData\Local\Temp\md-to-ppt-mermaid\`
 - macOS/Linux: `/tmp/md-to-ppt-mermaid/`
@@ -441,6 +486,7 @@ node scripts/md_to_ppt.js -i doc.md -o out.pptx --no-mermaid
 **原因**: 渲染缩放比例过小
 
 **解决方案**:
+
 ```bash
 # 使用更大的缩放比例（默认是 2）
 node scripts/md_to_ppt.js -i doc.md -o out.pptx --mermaid-scale 3
@@ -451,6 +497,7 @@ node scripts/md_to_ppt.js -i doc.md -o out.pptx --mermaid-scale 3
 **原因**: Inkscape 未正确安装或不在 PATH 中
 
 **解决方案**:
+
 ```bash
 # 检查 Inkscape 是否可用
 inkscape --version
@@ -520,35 +567,44 @@ A: 完全可以，生成的是标准 .pptx 文件，可用 PowerPoint 或其他�
 
 **Q: Mermaid 图表可以导出为矢量图吗?**
 A: 是的，支持三种格式：
+
 - **EMF**（默认）：矢量格式，可在 PowerPoint 中取消组合编辑，需安装 Inkscape
-- **SVG**：矢量格式，作为图片嵌入，可使用 `--convert-svg-to-shapes` 参数转换为可编辑形状
+- **SVG**：矢量格式，作为图片嵌入，可在 PPT 中手动转换为形状
 - **PNG**：光栅格式，最高兼容性
 
 使用 `--mermaid-format` 参数指定格式：
+
 ```bash
 node scripts/md_to_ppt.js -i doc.md -o out.pptx --mermaid-format svg
 ```
 
 **Q: 可以自定义颜色主题吗?**
-A: 可以，修改 `scripts/md_to_ppt.js` 中的样式配置来自定义颜色和边框。
+A: 可以，修改 `scripts/config.js` 中的样式配置来自定义颜色和边框。
 
 **Q: EMF 格式有什么优势?**
 A: EMF 是 Windows 增强型图元文件格式，优势包括：
+
 - 在 PowerPoint 中可直接取消组合，转换为可编辑的矢量形状
 - 无限缩放不失真
 - 适合需要后续编辑图表的场景
 - 需要 Inkscape 进行转换
 
 **Q: SVG 格式如何转换为可编辑形状?**
-A: 使用 `--convert-svg-to-shapes` 参数：
-```bash
-# 全部转换
-node scripts/md_to_ppt.js -i doc.md -o out.pptx --mermaid-format svg --convert-svg-to-shapes
+A: 在 PowerPoint 中：
 
-# 只转换简单图表（复杂度 ≤ 50）
-node scripts/md_to_ppt.js -i doc.md -o out.pptx --mermaid-format svg --convert-svg-to-shapes 50
+1. 选中 SVG 图片
+2. 右键选择"转换为形状"
+3. 取消组合后即可编辑各个元素
+
+**Q: 支持引述格式吗?**
+A: 支持，使用 `>` 开头的行创建引述：
+
+```markdown
+> 这是引述内容，支持 **加粗**、*斜体* 和 `代码` 格式。
+> 支持多行引述。
 ```
-注意：当前自动转换效果有限，建议在 PPT 中手动右键 SVG 图选择"转换为形状"。
+
+引述会显示为浅蓝背景框 + 💡 图标。
 
 **Q: 支持数学公式吗?**
 A: 当前版本不支持 LaTeX 数学公式。建议使用图片或 Unicode 符号代替。

@@ -21,7 +21,6 @@ function parseArgs() {
         mermaidEnabled: true,
         mermaidScale: 2,
         mermaidFormat: "emf",  // emf, svg 或 png，默认 emf
-        convertSvgToShapes: null,  // SVG 转可编辑形状，null=不转换，数字=复杂度阈值
         fallbackToPng: true     // EMF/SVG 失败时降级为 PNG
     };
 
@@ -64,14 +63,6 @@ function parseArgs() {
             case "--mermaid-format":
                 options.mermaidFormat = args[++i];  // emf, svg 或 png
                 break;
-            case "--convert-svg-to-shapes":
-                // 可选参数：带数字表示复杂度阈值，不带表示全部转换
-                if (i + 1 < args.length && !args[i + 1].startsWith("--")) {
-                    options.convertSvgToShapes = parseFloat(args[++i]);
-                } else {
-                    options.convertSvgToShapes = Infinity;  // 全部转换
-                }
-                break;
             case "--no-fallback":
                 options.fallbackToPng = false;  // 禁用 PNG 降级
                 break;
@@ -101,7 +92,6 @@ Options:
   --no-mermaid              Disable mermaid rendering
   --mermaid-scale <number>  Mermaid rendering scale (default: 2)
   --mermaid-format <format> Mermaid output format: emf, svg or png (default: emf)
-  --convert-svg-to-shapes [n] Convert SVG to editable shapes (optional complexity threshold)
   --no-fallback             Disable PNG fallback when EMF/SVG fails
   --help                    Show this help message
 
@@ -109,14 +99,8 @@ Examples:
   # Basic usage (default EMF format)
   node md_to_ppt.js -i doc.md -o output.pptx
 
-  # SVG format as images (not editable)
+  # SVG format as images
   node md_to_ppt.js -i doc.md -o output.pptx --mermaid-format svg
-
-  # SVG format + convert to editable shapes (all)
-  node md_to_ppt.js -i doc.md -o output.pptx --mermaid-format svg --convert-svg-to-shapes
-
-  # SVG format + convert only simple charts (complexity <= 50)
-  node md_to_ppt.js -i doc.md -o output.pptx --mermaid-format svg --convert-svg-to-shapes 50
 
   # PNG format (highest compatibility)
   node md_to_ppt.js -i doc.md -o output.pptx --mermaid-format png

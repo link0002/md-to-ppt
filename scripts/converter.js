@@ -64,11 +64,8 @@ class MarkdownToPptConverter {
             fallbackToPng: options.fallbackToPng !== false
         });
 
-        // 初始化 SVG 解析器
+        // SVG 解析器（用于未来扩展）
         this.svgParser = new SvgToPptConverter();
-
-        // SVG 转可编辑形状选项（null=不转换，数字=复杂度阈值，Infinity=全部转换）
-        this.convertSvgToShapes = options.convertSvgToShapes || null;
     }
 
     /**
@@ -89,6 +86,8 @@ class MarkdownToPptConverter {
         let inCodeBlock = false;
         let codeBlockType = "";
         let codeLines = [];
+        let inBlockquote = false;
+        let blockquoteLines = [];
 
         lines.forEach((line) => {
             const trimmed = line.trim();
@@ -123,6 +122,25 @@ class MarkdownToPptConverter {
             if (inCodeBlock) {
                 codeLines.push(line);
                 return;
+            }
+
+            // 引述块处理
+            if (line.match(/^>\s*(.*)/)) {
+                const quoteContent = line.match(/^>\s*(.*)/)[1];
+                blockquoteLines.push(quoteContent);
+                inBlockquote = true;
+                return;
+            } else if (inBlockquote) {
+                // 引述块结束
+                if (blockquoteLines.length > 0) {
+                    contentBuffer.push({
+                        type: "blockquote",
+                        text: blockquoteLines.join("\n")
+                    });
+                }
+                inBlockquote = false;
+                blockquoteLines = [];
+                // 继续处理当前行
             }
 
             // 一级标题 # → 封面页
@@ -246,6 +264,14 @@ class MarkdownToPptConverter {
                 }
             }
         });
+
+        // 保存未闭合的引述块
+        if (inBlockquote && blockquoteLines.length > 0) {
+            contentBuffer.push({
+                type: "blockquote",
+                text: blockquoteLines.join("\n")
+            });
+        }
 
         // 保存最后一张幻灯片
         if (currentSlide && contentBuffer.length > 0) {
@@ -698,6 +724,12 @@ class MarkdownToPptConverter {
                 case "mermaid":
                     await this.addMermaidDiagram(layoutEngine, item.code);
                     break;
+
+                case "blockquote":
+                    layoutEngine.addElement(item, (slide, y) => {
+                        this.addBlockquote(slide, item.text, y);
+                    });
+                    break;
             }
         }
 
@@ -740,6 +772,61 @@ class MarkdownToPptConverter {
     }
 
     /**
+     * 添加引述块
+     */
+    addBlockquote(slide, text, y) {
+        const lines = text.split("\n");
+        const lineHeight = 0.18; // 每行高度约0.18英寸
+        const padding = 0.15;
+        const iconWidth = 0.3;
+
+        // 计算需要的行数（考虑换行）
+        const maxCharsPerLine = Math.floor((this.layout.row3.contentArea.w - iconWidth - padding * 3) / 0.09);
+        let totalLines = 0;
+        for (const line of lines) {
+            totalLines += Math.ceil(line.length / maxCharsPerLine) || 1;
+        }
+
+        const boxHeight = padding * 2 + totalLines * lineHeight;
+
+        // 绘制背景框（浅蓝色，区别于代码块的浅灰色）
+        slide.addShape(this.pres.shapes.RECTANGLE, {
+            x: this.layout.row3.contentArea.x,
+            y: y,
+            w: this.layout.row3.contentArea.w,
+            h: boxHeight,
+            fill: { color: "E8F4FD" },
+            line: { color: "4A90E2", width: 1 }
+        });
+
+        // 添加引号图标
+        slide.addText("💡", {
+            x: this.layout.row3.contentArea.x + 0.08,
+            y: y + 0.08,
+            w: iconWidth,
+            h: 0.3,
+            fontSize: 16,
+            fontFace: "Segoe UI Emoji"
+        });
+
+        // 解析内联格式并添加文本
+        const formattedTexts = parseInlineMarkdown(text, {
+            fontSize: 10,
+            fontFace: this.font,
+            color: "333333"
+        });
+
+        slide.addText(formattedTexts, {
+            x: this.layout.row3.contentArea.x + iconWidth + padding,
+            y: y + padding,
+            w: this.layout.row3.contentArea.w - iconWidth - padding * 2,
+            h: boxHeight - padding * 2,
+            align: "left",
+            valign: "top"
+        });
+    }
+
+    /**
      * 添加 Mermaid 图表
      */
     async addMermaidDiagram(layoutEngine, mermaidCode) {
@@ -761,50 +848,6 @@ class MarkdownToPptConverter {
         }
 
         const { path: imagePath, width: imgWidth, height: imgHeight, format } = renderResult;
-
-        // 如果是 SVG 且启用转换，尝试转换为 PPT 形状
-        if (format === "svg" && this.convertSvgToShapes !== null && fs.existsSync(imagePath)) {
-            try {
-                const complexityThreshold = this.convertSvgToShapes;
-                const complexity = await this.svgParser.getComplexity(imagePath);
-                const isSimple = complexity <= complexityThreshold;
-
-                if (isSimple) {
-                    console.log(`Mermaid 图表简单，转换为可编辑形状`);
-                    const elements = await this.svgParser.parse(imagePath);
-
-                    // 计算最佳显示尺寸
-                    const contentWidth = this.layout.row3.contentArea.w;
-                    const contentHeight = this.layout.row3.contentArea.h;
-                    const { w: finalWidth, h: finalHeight } = calculateBestImageSize(
-                        imgWidth || elements.viewBox.width,
-                        imgHeight || elements.viewBox.height,
-                        contentWidth,
-                        contentHeight
-                    );
-
-                    layoutEngine.addElement(
-                        {
-                            type: "mermaid",
-                            code: mermaidCode,
-                            _actualHeight: finalHeight
-                        },
-                        (slide, y) => {
-                            const contentArea = this.layout.row3.contentArea;
-                            const centeredX = contentArea.x + (contentArea.w - finalWidth) / 2;
-
-                            this.svgParser.addToSlide(slide, elements,
-                                { x: centeredX, y: y },
-                                { w: finalWidth, h: finalHeight }
-                            );
-                        }
-                    );
-                    return;
-                }
-            } catch (err) {
-                console.warn(`SVG 转换失败，使用图片模式: ${err.message}`);
-            }
-        }
 
         // 如果无法获取图片尺寸，使用默认处理方式
         if (!imgWidth || !imgHeight) {

@@ -62,6 +62,20 @@ class HeightCalculator {
                 return 0.3 + displayLines * 0.12 + 0.2;
             }
 
+            case "blockquote": {
+                const lines = item.text.split("\n");
+                const lineHeight = 0.18;
+                const padding = 0.15;
+                const iconWidth = 0.3;
+                const maxCharsPerLine = Math.floor((this.layout.row3.contentArea.w - iconWidth - padding * 3) / 0.09);
+
+                let totalLines = 0;
+                for (const line of lines) {
+                    totalLines += Math.ceil(line.length / maxCharsPerLine) || 1;
+                }
+                return padding * 2 + totalLines * lineHeight;
+            }
+
             case "table": {
                 const cells = item.text.split("|").filter(c => c.trim() !== "");
                 return cells.length > 0 ? 0.25 : 0;

@@ -166,7 +166,26 @@ class LayoutEngine {
                 batchHeights = rowHeights.slice(startIdx, batchEndIdx);
             }
 
-            this.currentSlide.addTable(batchRows, {
+            // 解析表格单元格的内联格式（加粗、斜体、代码等）
+            // pptxgenjs 单元格格式: { text: [{...}, {...}], options: {...} }
+            const formattedRows = batchRows.map(row =>
+                row.map(cell => {
+                    const parsed = parseInlineMarkdown(String(cell).trim(), {
+                        fontSize: 10,
+                        fontFace: STYLE_CONFIG.fontConfig.fallback,
+                        color: "000000"
+                    });
+                    // 如果解析后只有一个纯文本元素，直接返回字符串（优化）
+                    if (parsed.length === 1 && !parsed[0].options.bold && !parsed[0].options.italic &&
+                        parsed[0].options.fontFace === STYLE_CONFIG.fontConfig.fallback) {
+                        return parsed[0].text;
+                    }
+                    // 否则返回带格式的对象
+                    return { text: parsed, options: {} };
+                })
+            );
+
+            this.currentSlide.addTable(formattedRows, {
                 x: this.layout.row3.contentArea.x,
                 y: this.currentY,
                 w: this.layout.row3.contentArea.w,
