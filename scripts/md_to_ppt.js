@@ -21,7 +21,10 @@ function parseArgs() {
         mermaidEnabled: true,
         mermaidScale: 2,
         mermaidFormat: "emf",  // emf, svg 或 png，默认 emf
-        fallbackToPng: true     // EMF/SVG 失败时降级为 PNG
+        fallbackToPng: true,   // EMF/SVG 失败时降级为 PNG
+        mathEnabled: true,
+        mathScale: 2,
+        mathEngine: 'katex'
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -66,6 +69,15 @@ function parseArgs() {
             case "--no-fallback":
                 options.fallbackToPng = false;  // 禁用 PNG 降级
                 break;
+            case "--no-math":
+                options.mathEnabled = false;
+                break;
+            case "--math-scale":
+                options.mathScale = parseFloat(args[++i]);
+                break;
+            case "--math-engine":
+                options.mathEngine = args[++i];
+                break;
             case "--help":
                 printHelp();
                 process.exit(0);
@@ -93,6 +105,9 @@ Options:
   --mermaid-scale <number>  Mermaid rendering scale (default: 2)
   --mermaid-format <format> Mermaid output format: emf, svg or png (default: emf)
   --no-fallback             Disable PNG fallback when EMF/SVG fails
+  --no-math                 Disable math formula rendering
+  --math-scale <number>     Math rendering scale (default: 2)
+  --math-engine <name>      Math engine: katex or mathjax (default: katex)
   --help                    Show this help message
 
 Examples:
