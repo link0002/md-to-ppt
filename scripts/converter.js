@@ -24,6 +24,8 @@ const { MasterSlideManager } = require('./master_slide');
 const { MermaidRenderer } = require('./mermaid_renderer');
 const { LayoutEngine } = require('./layout_engine');
 const { SvgToPptConverter } = require('./svg_parser');
+const { MathRenderer } = require('./math_renderer');
+const { MathFormulaParser } = require('./math_formula_parser');
 
 class MarkdownToPptConverter {
     constructor(options = {}) {
@@ -66,6 +68,10 @@ class MarkdownToPptConverter {
 
         // SVG 解析器（用于未来扩展）
         this.svgParser = new SvgToPptConverter();
+
+        // 初始化数学公式渲染器和解析器
+        this.mathRenderer = new MathRenderer({ scale: 2 });
+        this.mathParser = new MathFormulaParser();
     }
 
     /**
@@ -88,6 +94,7 @@ class MarkdownToPptConverter {
         let codeLines = [];
         let inBlockquote = false;
         let blockquoteLines = [];
+        let inFormulaBlock = undefined;
 
         lines.forEach((line) => {
             const trimmed = line.trim();
@@ -121,6 +128,31 @@ class MarkdownToPptConverter {
 
             if (inCodeBlock) {
                 codeLines.push(line);
+                return;
+            }
+
+            // 块级公式检测（$$ ... $$）
+            if (trimmed.startsWith('$$')) {
+                if (inFormulaBlock === undefined) {
+                    // 块级公式开始
+                    inFormulaBlock = '';
+                    return;
+                } else {
+                    // 块级公式结束
+                    if (inFormulaBlock.trim().length > 0) {
+                        contentBuffer.push({
+                            type: 'formula',
+                            latex: inFormulaBlock.trim(),
+                            formulaType: 'block'
+                        });
+                    }
+                    inFormulaBlock = undefined;
+                    return;
+                }
+            }
+
+            if (inFormulaBlock !== undefined) {
+                inFormulaBlock += line + '\n';
                 return;
             }
 
@@ -270,6 +302,15 @@ class MarkdownToPptConverter {
             contentBuffer.push({
                 type: "blockquote",
                 text: blockquoteLines.join("\n")
+            });
+        }
+
+        // 保存未闭合的块级公式
+        if (inFormulaBlock !== undefined && inFormulaBlock.trim().length > 0) {
+            contentBuffer.push({
+                type: 'formula',
+                latex: inFormulaBlock.trim(),
+                formulaType: 'block'
             });
         }
 
@@ -730,6 +771,14 @@ class MarkdownToPptConverter {
                         this.addBlockquote(slide, item.text, y);
                     });
                     break;
+
+                case "formula":
+                    const formulaData = await this.mathRenderer.render(item.latex, item.formulaType || 'block');
+                    item._height = formulaData.height / 96;
+                    layoutEngine.addElement(item, (slide, y, height) => {
+                        this.addMathFormula(slide, formulaData, y, height);
+                    });
+                    break;
             }
         }
 
@@ -823,6 +872,37 @@ class MarkdownToPptConverter {
             h: boxHeight - padding * 2,
             align: "left",
             valign: "top"
+        });
+    }
+
+    /**
+     * 添加数学公式（块级）
+     */
+    addMathFormula(slide, formulaData, y, height) {
+        const contentArea = this.layout.row3.contentArea;
+
+        // 计算图片尺寸（保持宽高比，适配内容区域宽度）
+        // MathRenderer 输出的 width/height 单位是 px（基于 scale 和 fontSize）
+        // PptxGenJS 使用英寸，近似按 96 dpi 换算
+        let imgWidth = formulaData.width / 96;
+        let imgHeight = formulaData.height / 96;
+
+        // 限制宽度不超过内容区域
+        if (imgWidth > contentArea.w - 0.4) {
+            const ratio = (contentArea.w - 0.4) / imgWidth;
+            imgWidth = contentArea.w - 0.4;
+            imgHeight = imgHeight * ratio;
+        }
+
+        // 块级公式居中
+        const x = contentArea.x + (contentArea.w - imgWidth) / 2;
+
+        slide.addImage({
+            data: formulaData.data,
+            x: x,
+            y: y,
+            w: imgWidth,
+            h: imgHeight
         });
     }
 

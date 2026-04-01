@@ -81,6 +81,9 @@ class HeightCalculator {
                 return cells.length > 0 ? 0.25 : 0;
             }
 
+            case "formula":
+                return item._height || 1.0;
+
             case "mermaid":
                 if (item._actualHeight) {
                     return item._actualHeight;
