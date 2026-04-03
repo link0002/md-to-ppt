@@ -1,13 +1,16 @@
 const katex = require('katex');
 const fs = require('fs');
 const path = require('path');
+const puppeteer = require('puppeteer');
 
 class MathRenderer {
     constructor(options = {}) {
         this.scale = options.scale || 2;
         this.throwOnError = options.throwOnError || false;
-        this.fontSize = options.fontSize || 24; // base font size in px
+        this.fontSize = options.fontSize || 24;
         this._katexCss = null;
+        this._browser = null;
+        this._katexFontsDir = null;
     }
 
     /**
@@ -15,19 +18,39 @@ class MathRenderer {
      */
     _getKatexCss() {
         if (!this._katexCss) {
-            const cssPath = path.join(
-                path.dirname(require.resolve('katex')),
-                '..',
-                'dist',
-                'katex.min.css'
-            );
+            const katexDir = path.dirname(require.resolve('katex'));
+            this._katexFontsDir = path.join(katexDir, '..', 'dist', 'fonts');
+            const cssPath = path.join(katexDir, '..', 'dist', 'katex.min.css');
             this._katexCss = fs.readFileSync(cssPath, 'utf-8');
         }
         return this._katexCss;
     }
 
     /**
-     * Render a LaTeX formula to SVG (base64 data URL)
+     * Get or launch browser instance (cached)
+     */
+    async _getBrowser() {
+        if (!this._browser) {
+            this._browser = await puppeteer.launch({
+                headless: 'new',
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+        }
+        return this._browser;
+    }
+
+    /**
+     * Close browser (call when done)
+     */
+    async close() {
+        if (this._browser) {
+            await this._browser.close();
+            this._browser = null;
+        }
+    }
+
+    /**
+     * Render a LaTeX formula to PNG (base64 data URL)
      * @param {string} latex - The LaTeX formula string
      * @param {string} type - 'inline' or 'block'
      * @returns {Object} Render result with format, data, width, height
@@ -47,49 +70,66 @@ class MathRenderer {
                 trust: true
             });
 
-            // Extract height from KaTeX's strut style (in em units)
-            const strutMatch = html.match(/height:([\d.]+)em/);
-            const emHeight = strutMatch ? parseFloat(strutMatch[1]) : 1.2;
-
-            // Estimate width based on formula complexity and display mode
-            // KaTeX uses em-based sizing; we approximate width from content
-            const estimatedEmWidth = displayMode
-                ? Math.max(latex.length * 0.3, 2)
-                : Math.max(latex.length * 0.25, 1.5);
-
-            const baseWidth = estimatedEmWidth * this.fontSize;
-            const baseHeight = emHeight * this.fontSize;
-
-            const width = Math.ceil(baseWidth * this.scale);
-            const height = Math.ceil((baseHeight + 0.5) * this.scale); // add padding
-
             const css = this._getKatexCss();
+            const fontsDir = this._katexFontsDir.replace(/\\/g, '/');
 
-            // Build SVG with foreignObject to embed KaTeX HTML
-            const svg =
-                '<svg xmlns="http://www.w3.org/2000/svg" ' +
-                'width="' + width + '" ' +
-                'height="' + height + '">' +
-                '<style><![CDATA[' + css + ']]></style>' +
-                '<foreignObject x="0" y="0" width="' + width + '" height="' + height + '">' +
-                '<div xmlns="http://www.w3.org/1999/xhtml" ' +
-                'style="display:flex;align-items:center;justify-content:center;' +
-                'width:100%;height:100%;font-size:' + (this.fontSize * this.scale) + 'px;">' +
-                html +
-                '</div>' +
-                '</foreignObject>' +
-                '</svg>';
+            // Build complete HTML page with KaTeX CSS and font references
+            const fullHtml = `<!DOCTYPE html>
+<html><head>
+<style>
+    * { margin: 0; padding: 0; }
+    body { display: inline-block; }
+    .formula-container {
+        display: inline-block;
+        padding: 0;
+        font-size: ${this.fontSize * this.scale}px;
+    }
+    @font-face {
+        font-family: 'KaTeX_AMS';
+        src: url('file:///${fontsDir}/KaTeX_AMS-Regular.woff2') format('woff2'),
+             url('file:///${fontsDir}/KaTeX_AMS-Regular.woff') format('woff'),
+             url('file:///${fontsDir}/KaTeX_AMS-Regular.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+</style>
+<style>${css}</style>
+</head><body>
+<div class="formula-container">${html}</div>
+</body></html>`;
 
-            const base64 = Buffer.from(svg).toString('base64');
-            const dataUrl = 'data:image/svg+xml;base64,' + base64;
+            const browser = await this._getBrowser();
+            const page = await browser.newPage();
 
-            return {
-                format: 'svg',
-                data: dataUrl,
-                width: width,
-                height: height,
-                isPlaceholder: false
-            };
+            try {
+                await page.setContent(fullHtml, { waitUntil: 'networkidle0' });
+
+                const container = await page.$('.formula-container');
+                const box = await container.boundingBox();
+
+                if (!box) {
+                    return this._createPlaceholder(latex);
+                }
+
+                // Screenshot with device scale factor for crisp rendering
+                const screenshot = await container.screenshot({
+                    type: 'png',
+                    scale: 1
+                });
+
+                const base64 = screenshot.toString('base64');
+                const dataUrl = 'data:image/png;base64,' + base64;
+
+                return {
+                    format: 'png',
+                    data: dataUrl,
+                    width: box.width,
+                    height: box.height,
+                    isPlaceholder: false
+                };
+            } finally {
+                await page.close();
+            }
 
         } catch (error) {
             console.warn('Math render failed: ' + latex, error.message);
@@ -98,9 +138,7 @@ class MathRenderer {
     }
 
     /**
-     * Create a placeholder SVG for failed renderings
-     * @param {string} latex - The original LaTeX that failed
-     * @returns {Object} Placeholder result
+     * Create a placeholder for failed renderings
      */
     _createPlaceholder(latex) {
         const width = 200 * this.scale;
@@ -134,11 +172,6 @@ class MathRenderer {
         };
     }
 
-    /**
-     * Escape HTML special characters
-     * @param {string} text
-     * @returns {string}
-     */
     _escapeHtml(text) {
         return text
             .replace(/&/g, '&amp;')

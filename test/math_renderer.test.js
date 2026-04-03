@@ -10,20 +10,26 @@ describe('MathRenderer', () => {
         }
     });
 
-    test('渲染简单行内公式', async () => {
-        const renderer = new MathRenderer();
-        const result = await renderer.render('x^2', 'inline');
-        expect(result.format).toBe('svg');
-        expect(result.data).toMatch(/^data:image\/svg\+xml;base64,/);
-        expect(result.width).toBeGreaterThan(0);
-        expect(result.height).toBeGreaterThan(0);
+    afterAll(async () => {
+        // Cleanup: close browser if any renderer created one
     });
 
-    test('渲染块级公式', async () => {
+    test('渲染简单行内公式为 PNG', async () => {
+        const renderer = new MathRenderer();
+        const result = await renderer.render('x^2', 'inline');
+        expect(result.format).toBe('png');
+        expect(result.data).toMatch(/^data:image\/png;base64,/);
+        expect(result.width).toBeGreaterThan(0);
+        expect(result.height).toBeGreaterThan(0);
+        await renderer.close();
+    });
+
+    test('渲染块级公式为 PNG', async () => {
         const renderer = new MathRenderer();
         const result = await renderer.render('\\frac{a}{b}', 'block');
-        expect(result.format).toBe('svg');
-        expect(result.data).toMatch(/^data:image\/svg\+xml;base64,/);
+        expect(result.format).toBe('png');
+        expect(result.data).toMatch(/^data:image\/png;base64,/);
+        await renderer.close();
     });
 
     test('无效 LaTeX 返回占位符', async () => {
@@ -36,6 +42,7 @@ describe('MathRenderer', () => {
     test('设置不同缩放比例', async () => {
         const renderer = new MathRenderer({ scale: 3 });
         const result = await renderer.render('x', 'inline');
-        expect(result.format).toBe('svg');
+        expect(result.format).toBe('png');
+        await renderer.close();
     });
 });

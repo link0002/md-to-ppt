@@ -9,6 +9,7 @@ description: 将 Markdown 技术文档转换为 PowerPoint 演示文稿。支持
 ## 核心功能
 
 - **Mermaid 图表**：流程图、时序图、类图、状态图、甘特图、饼图、思维导图
+- **数学公式**：`$$...$$` 块级 LaTeX 公式（KaTeX 渲染为 PNG）
 - **内联格式**：`**加粗**`、`*斜体*`、`` `代码` ``
 - **表格**：支持单元格内联格式
 - **引述**：`> 内容`（浅蓝背景 + 💡 图标）
@@ -46,6 +47,8 @@ node scripts/md_to_ppt.js -i input.md -o output.pptx -l landscape
 | `--mermaid-format` | - | Mermaid 输出格式：`emf`/`svg`/`png` | `emf` |
 | `--no-mermaid` | - | 禁用 Mermaid 渲染 | - |
 | `--no-fallback` | - | 禁用 PNG 降级 | - |
+| `--no-math` | - | 禁用数学公式渲染 | - |
+| `--math-scale` | - | 公式缩放比例 | 2 |
 | `--help` | - | 显示帮助 | - |
 
 ## Markdown 元素映射
@@ -62,6 +65,7 @@ node scripts/md_to_ppt.js -i input.md -o output.pptx -l landscape
 | Mermaid | ` ```mermaid ` ` | 渲染为图表 |
 | 表格 | `\| 列1 \| 列2 \|` | 表格（支持内联格式） |
 | 引述 | `> 内容` | 浅蓝引述框 + 💡 |
+| 块级公式 | ` $$...$$ ` | KaTeX 渲染为 PNG |
 
 ## 内联格式
 

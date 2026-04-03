@@ -881,11 +881,9 @@ class MarkdownToPptConverter {
     addMathFormula(slide, formulaData, y, height) {
         const contentArea = this.layout.row3.contentArea;
 
-        // 计算图片尺寸（保持宽高比，适配内容区域宽度）
-        // MathRenderer 输出的 width/height 单位是 px（基于 scale 和 fontSize）
-        // PptxGenJS 使用英寸，近似按 96 dpi 换算
-        let imgWidth = formulaData.width / 96;
-        let imgHeight = formulaData.height / 96;
+        // 计算图片尺寸（缩小到 0.5 倍）
+        let imgWidth = (formulaData.width / 96) * 0.5;
+        let imgHeight = (formulaData.height / 96) * 0.5;
 
         // 限制宽度不超过内容区域
         if (imgWidth > contentArea.w - 0.4) {
