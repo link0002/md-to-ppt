@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx jest:*)",
+      "Bash(node node_modules/jest/bin/jest.js test/math_formula_parser.test.js --no-coverage)",
+      "Bash(node -e \"const {execSync} = require\\(''child_process''\\); try { const out = execSync\\(''npx jest test/math_formula_parser.test.js --no-coverage'', {encoding:''utf8'', timeout:30000, stdio:''pipe''}\\); console.log\\(out\\); } catch\\(e\\) { console.log\\(''STDOUT:'', e.stdout\\); console.log\\(''STDERR:'', e.stderr\\); console.log\\(''EXIT CODE:'', e.status\\); }\")",
+      "Bash(node -e \"const katex = require\\(''katex''\\); const html = katex.renderToString\\(''x^2'', {output: ''html''}\\); console.log\\(html.substring\\(0, 500\\)\\); console.log\\(''---CONTAINS SVG---''\\); console.log\\(html.includes\\(''<svg''\\)\\);\")",
+      "Bash(node -e \"const katex = require\\(''katex''\\); const html = katex.renderToString\\(''\\\\\\\\frac{a}{b}'', {output: ''html''}\\); console.log\\(html.substring\\(0, 500\\)\\);\")",
+      "Bash(node -e \"const katex = require\\(''katex''\\); const html = katex.renderToString\\(String.raw\\\\`\\\\frac{a}{b}\\\\`, {output: ''html''}\\); console.log\\(html.substring\\(0, 300\\)\\);\")",
+      "Bash(node -e 'const katex = require\\(\"\"katex\"\"\\); const html = katex.renderToString\\(\"\"\\\\\\\\frac{a}{b}\"\", {output: \"\"html\"\"}\\); console.log\\(html.substring\\(0, 300\\)\\);')",
+      "Bash(node -e \"var s=''x^2''; const katex = require\\(''katex''\\); const html = katex.renderToString\\(s, {output: ''html'', throwOnError: true}\\); console.log\\(''SUCCESS''\\); console.log\\(html.substring\\(0, 200\\)\\);\")",
+      "Bash(node -e \":*)",
+      "Bash(node:*)"
+    ]
+  }
+}

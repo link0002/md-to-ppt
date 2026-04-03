@@ -70,7 +70,7 @@ class MarkdownToPptConverter {
         this.svgParser = new SvgToPptConverter();
 
         // 初始化数学公式渲染器和解析器
-        this.mathRenderer = new MathRenderer({ scale: 2 });
+        this.mathRenderer = new MathRenderer({ scale: options.mathScale || 2 });
         this.mathParser = new MathFormulaParser();
     }
 

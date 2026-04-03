@@ -20,11 +20,10 @@ function parseArgs() {
         title: "技术文档",
         mermaidEnabled: true,
         mermaidScale: 2,
-        mermaidFormat: "emf",  // emf, svg 或 png，默认 emf
+        mermaidFormat: "svg",  // svg, emf 或 png，默认 svg
         fallbackToPng: true,   // EMF/SVG 失败时降级为 PNG
         mathEnabled: true,
-        mathScale: 2,
-        mathEngine: 'katex'
+        mathScale: 2
     };
 
     for (let i = 0; i < args.length; i++) {
@@ -75,9 +74,6 @@ function parseArgs() {
             case "--math-scale":
                 options.mathScale = parseFloat(args[++i]);
                 break;
-            case "--math-engine":
-                options.mathEngine = args[++i];
-                break;
             case "--help":
                 printHelp();
                 process.exit(0);
@@ -103,15 +99,14 @@ Options:
   -t, --title <text>        Presentation title (default: 技术文档)
   --no-mermaid              Disable mermaid rendering
   --mermaid-scale <number>  Mermaid rendering scale (default: 2)
-  --mermaid-format <format> Mermaid output format: emf, svg or png (default: emf)
+  --mermaid-format <format> Mermaid output format: emf, svg or png (default: svg)
   --no-fallback             Disable PNG fallback when EMF/SVG fails
   --no-math                 Disable math formula rendering
   --math-scale <number>     Math rendering scale (default: 2)
-  --math-engine <name>      Math engine: katex or mathjax (default: katex)
   --help                    Show this help message
 
 Examples:
-  # Basic usage (default EMF format)
+  # Basic usage (default SVG format)
   node md_to_ppt.js -i doc.md -o output.pptx
 
   # SVG format as images

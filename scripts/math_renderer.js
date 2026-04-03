@@ -1,61 +1,32 @@
-const katex = require('katex');
-const fs = require('fs');
-const path = require('path');
-const puppeteer = require('puppeteer');
+const { mathjax } = require('mathjax-full/js/mathjax.js');
+const { TeX } = require('mathjax-full/js/input/tex.js');
+const { SVG } = require('mathjax-full/js/output/svg.js');
+const { liteAdaptor } = require('mathjax-full/js/adaptors/liteAdaptor.js');
+const { RegisterHTMLHandler } = require('mathjax-full/js/handlers/html.js');
+const { AllPackages } = require('mathjax-full/js/input/tex/AllPackages.js');
 
 class MathRenderer {
     constructor(options = {}) {
         this.scale = options.scale || 2;
         this.throwOnError = options.throwOnError || false;
-        this.fontSize = options.fontSize || 24;
-        this._katexCss = null;
-        this._browser = null;
-        this._katexFontsDir = null;
+
+        // 初始化 MathJax（一次性）
+        const adaptor = liteAdaptor();
+        RegisterHTMLHandler(adaptor);
+        this._adaptor = adaptor;
+
+        const tex = new TeX({ packages: AllPackages });
+        const svgOut = new SVG({ fontCache: 'local' });
+        this._doc = mathjax.document('', { InputJax: tex, OutputJax: svgOut });
     }
 
     /**
-     * Get KaTeX CSS content (cached)
+     * 渲染 LaTeX 公式为纯 SVG（base64 data URL）
+     * @param {string} latex - LaTeX 公式字符串
+     * @param {string} type - 'inline' 或 'block'
+     * @returns {Object} { format, data, width, height, isPlaceholder }
      */
-    _getKatexCss() {
-        if (!this._katexCss) {
-            const katexDir = path.dirname(require.resolve('katex'));
-            this._katexFontsDir = path.join(katexDir, '..', 'dist', 'fonts');
-            const cssPath = path.join(katexDir, '..', 'dist', 'katex.min.css');
-            this._katexCss = fs.readFileSync(cssPath, 'utf-8');
-        }
-        return this._katexCss;
-    }
-
-    /**
-     * Get or launch browser instance (cached)
-     */
-    async _getBrowser() {
-        if (!this._browser) {
-            this._browser = await puppeteer.launch({
-                headless: 'new',
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
-            });
-        }
-        return this._browser;
-    }
-
-    /**
-     * Close browser (call when done)
-     */
-    async close() {
-        if (this._browser) {
-            await this._browser.close();
-            this._browser = null;
-        }
-    }
-
-    /**
-     * Render a LaTeX formula to PNG (base64 data URL)
-     * @param {string} latex - The LaTeX formula string
-     * @param {string} type - 'inline' or 'block'
-     * @returns {Object} Render result with format, data, width, height
-     */
-    async render(latex, type = 'inline') {
+    render(latex, type = 'inline') {
         if (!latex || typeof latex !== 'string' || latex.trim() === '') {
             return this._createPlaceholder(latex || '');
         }
@@ -63,73 +34,49 @@ class MathRenderer {
         const displayMode = type === 'block';
 
         try {
-            const html = katex.renderToString(latex, {
-                displayMode: displayMode,
-                throwOnError: this.throwOnError,
-                output: 'html',
-                trust: true
-            });
+            const node = this._doc.convert(latex, { display: displayMode });
+            let svgStr = this._adaptor.outerHTML(node);
 
-            const css = this._getKatexCss();
-            const fontsDir = this._katexFontsDir.replace(/\\/g, '/');
-
-            // Build complete HTML page with KaTeX CSS and font references
-            const fullHtml = `<!DOCTYPE html>
-<html><head>
-<style>
-    * { margin: 0; padding: 0; }
-    body { display: inline-block; }
-    .formula-container {
-        display: inline-block;
-        padding: 0;
-        font-size: ${this.fontSize * this.scale}px;
-    }
-    @font-face {
-        font-family: 'KaTeX_AMS';
-        src: url('file:///${fontsDir}/KaTeX_AMS-Regular.woff2') format('woff2'),
-             url('file:///${fontsDir}/KaTeX_AMS-Regular.woff') format('woff'),
-             url('file:///${fontsDir}/KaTeX_AMS-Regular.ttf') format('truetype');
-        font-weight: normal;
-        font-style: normal;
-    }
-</style>
-<style>${css}</style>
-</head><body>
-<div class="formula-container">${html}</div>
-</body></html>`;
-
-            const browser = await this._getBrowser();
-            const page = await browser.newPage();
-
-            try {
-                await page.setContent(fullHtml, { waitUntil: 'networkidle0' });
-
-                const container = await page.$('.formula-container');
-                const box = await container.boundingBox();
-
-                if (!box) {
-                    return this._createPlaceholder(latex);
-                }
-
-                // Screenshot with device scale factor for crisp rendering
-                const screenshot = await container.screenshot({
-                    type: 'png',
-                    scale: 1
-                });
-
-                const base64 = screenshot.toString('base64');
-                const dataUrl = 'data:image/png;base64,' + base64;
-
-                return {
-                    format: 'png',
-                    data: dataUrl,
-                    width: box.width,
-                    height: box.height,
-                    isPlaceholder: false
-                };
-            } finally {
-                await page.close();
+            // 提取纯 <svg> 元素，去掉 <mjx-container> 包裹
+            const svgMatch = svgStr.match(/(<svg[\s\S]*<\/svg>)/);
+            if (!svgMatch) {
+                return this._createPlaceholder(latex);
             }
+            svgStr = svgMatch[1];
+
+            // 替换 currentColor 为黑色（PPT 不支持 currentColor）
+            svgStr = svgStr.replace(/currentColor/g, '#000000');
+
+            // 从 SVG 属性提取尺寸（MathJax 使用 ex 单位）
+            const widthMatch = svgStr.match(/width="([\d.]+)ex"/);
+            const heightMatch = svgStr.match(/height="([\d.]+)ex"/);
+            const viewBoxMatch = svgStr.match(/viewBox="([\d\s.-]+)"/);
+
+            let widthPx, heightPx;
+            if (viewBoxMatch) {
+                const parts = viewBoxMatch[1].trim().split(/\s+/);
+                const vbWidth = parseFloat(parts[2]);
+                const vbHeight = parseFloat(parts[3]);
+                // 1ex ≈ 16px，乘以缩放
+                const exScale = 16 * this.scale;
+                widthPx = (parseFloat(widthMatch?.[1] || vbWidth / 16)) * exScale;
+                heightPx = (parseFloat(heightMatch?.[1] || vbHeight / 16)) * exScale;
+            } else {
+                widthPx = 400 * this.scale;
+                heightPx = 100 * this.scale;
+            }
+
+            // base64 编码
+            const base64 = Buffer.from(svgStr).toString('base64');
+            const dataUrl = 'data:image/svg+xml;base64,' + base64;
+
+            return {
+                format: 'svg',
+                data: dataUrl,
+                width: widthPx,
+                height: heightPx,
+                isPlaceholder: false
+            };
 
         } catch (error) {
             console.warn('Math render failed: ' + latex, error.message);
@@ -138,7 +85,7 @@ class MathRenderer {
     }
 
     /**
-     * Create a placeholder for failed renderings
+     * 创建占位符
      */
     _createPlaceholder(latex) {
         const width = 200 * this.scale;
