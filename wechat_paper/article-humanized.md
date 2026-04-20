@@ -11,7 +11,13 @@
 **DALL-E 3 提示词：**
 
 ```
-A modern workspace showing a computer screen displaying a PowerPoint presentation with technical diagrams and charts. An AI robot or holographic assistant is helping organize documents. Clean, minimalist style with blue and white color scheme. Technology vibe, professional engineering context. No text overlays.
+A modern HVAC engineer's workspace with a computer screen displaying a PowerPoint presentation showing refrigeration system diagrams, thermodynamic charts, and performance data tables. In the background, subtle elements of air conditioning equipment: an indoor unit wall-mounted, copper refrigerant pipes, a pressure gauge, and a compressor schematic. A holographic AI assistant is helping organize the technical documents. Cool blue and white color scheme representing refrigeration technology. Professional engineering context with temperature/COP calculation formulas floating subtly. Clean, minimalist style. No text overlays.
+```
+
+**中文提示词：**
+
+```
+现代暖通制冷工程师的工作空间，电脑屏幕显示 PowerPoint 演示文稿，包含制冷系统图、热力学图表和性能数据表。背景中有空调设备元素：壁挂式室内机、铜制冷剂管、压力表和压缩机示意图。全息 AI 助手正在帮助整理技术文档。冷色调蓝白配色代表制冷技术。专业工程环境，隐约漂浮着温度/COP 计算公式。简洁极简风格。无文字叠加。
 ```
 
 ---
@@ -212,11 +218,40 @@ $$
 
 ### 一行命令搞定
 
+**基本用法：**
+
 ```bash
-node md_to_ppt.js -i spec.md -o spec.pptx
+node scripts/md_to_ppt.js -i spec.md -o spec.pptx
 ```
 
-就这么简单。
+就这么简单。当然，也支持更多选项：
+
+**选项决策指引：**
+
+| 场景 | 推荐选项 |
+|------|----------|
+| 默认转换（无需任何额外选项） | 直接 `-i` `-o` 即可 |
+| 需要可编辑的 Mermaid 图表 | `--mermaid-format emf`（需安装 Inkscape） |
+| 横版演示（适合投影） | `-l landscape` |
+| 竖版布局（适合打印/规格书） | `-l portrait` |
+| 公式太小/太大 | `--math-scale 3` 或 `--math-scale 1`（默认 2） |
+| Mermaid 图表太小/太大 | `--mermaid-scale 3` 或 `--mermaid-scale 1`（默认 2） |
+| 无需 Mermaid 图表（加速转换） | `--no-mermaid` |
+| 无需数学公式 | `--no-math` |
+
+**完整选项列表：**
+
+| 选项 | 简写 | 说明 | 默认值 |
+|------|------|------|--------|
+| `--input` | `-i` | 输入 markdown 文件（必需） | - |
+| `--output` | `-o` | 输出 pptx 文件（必需） | - |
+| `--layout` | `-l` | `portrait` / `landscape` | `portrait` |
+| `--font` | `-f` | 字体名称 | 微软雅黑 |
+| `--mermaid-format` | - | `svg` / `emf` / `png` | `svg` |
+| `--mermaid-scale` | - | Mermaid 渲染缩放 | `2` |
+| `--no-mermaid` | - | 禁用 Mermaid 渲染 | - |
+| `--no-math` | - | 禁用数学公式渲染 | - |
+| `--math-scale` | - | 公式渲染缩放比例 | `2` |
 
 > 一行命令，Markdown 变成 PPT
 
