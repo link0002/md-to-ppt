@@ -2,10 +2,11 @@
 name: md-to-ppt
 description: |
   将 Markdown 技术文档转换为 PowerPoint 演示文稿。
-  当需要将 .md 文件转换为 .pptx 时使用此 skill。
-  支持 Mermaid 图表（流程图、时序图、类图、状态图）、
+  当用户提到 .pptx、演示文稿、幻灯片、PPT 时使用此 skill。
+  支持 Mermaid 图表（流程图、时序图、类图、状态图、甘特图、饼图、思维导图）、
   LaTeX 块级数学公式（MathJax SVG）、表格（含内联格式）、引述、代码块、
   智能分页、竖版/横版布局。
+  触发场景：用户要求将 .md 转为 .pptx，或提到"生成 PPT"、"转换演示文稿"。
 ---
 
 # Markdown 转 PowerPoint 转换器
@@ -73,7 +74,7 @@ node scripts/md_to_ppt.js -i <input.md> -o <output.pptx> [options]
 
 ### Mermaid 图表类型
 
-支持：`graph TD/LR`、`sequenceDiagram`、`classDiagram`、`stateDiagram`
+支持：`graph TD/LR`、`sequenceDiagram`、`classDiagram`、`stateDiagram`、`gantt`、`pie`、`mindmap`
 
 ### Mermaid 输出格式
 

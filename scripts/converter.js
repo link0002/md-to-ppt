@@ -23,7 +23,7 @@ const { calculateBestImageSize, parseInlineMarkdown, wrapText } = require('./uti
 const { MasterSlideManager } = require('./master_slide');
 const { MermaidRenderer } = require('./mermaid_renderer');
 const { LayoutEngine } = require('./layout_engine');
-const { SvgToPptConverter } = require('./svg_parser');
+
 const { MathRenderer } = require('./math_renderer');
 const { MathFormulaParser } = require('./math_formula_parser');
 
@@ -62,12 +62,9 @@ class MarkdownToPptConverter {
         this.mermaidRenderer = new MermaidRenderer({
             mermaidEnabled: options.mermaidEnabled !== false,
             scale: options.mermaidScale || 2,
-            outputFormat: options.mermaidFormat || "emf",  // 默认 EMF
+            outputFormat: options.mermaidFormat || "svg",
             fallbackToPng: options.fallbackToPng !== false
         });
-
-        // SVG 解析器（用于未来扩展）
-        this.svgParser = new SvgToPptConverter();
 
         // 初始化数学公式渲染器和解析器
         this.mathRenderer = new MathRenderer({ scale: options.mathScale || 2 });

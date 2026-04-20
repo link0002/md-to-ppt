@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A Markdown to PowerPoint converter that supports:
 - Markdown parsing with headings, lists, tables, code blocks, blockquotes
 - Mermaid diagram rendering (via `@mermaid-js/mermaid-cli`)
-- Math formula rendering via KaTeX (`$$...$$` block only)
+- Math formula rendering via MathJax SVG (`$$...$$` block only)
 - Inline text formatting (bold, italic, code)
 - Portrait (7.5" x 10.83") and landscape (10" x 7.5") layouts
 - SVG-based Mermaid diagrams embedded as base64 images
@@ -15,7 +15,7 @@ A Markdown to PowerPoint converter that supports:
 ## Development Commands
 
 ```bash
-# Basic conversion (portrait, EMF format for mermaid)
+# Basic conversion (portrait, SVG format for mermaid)
 node scripts/md_to_ppt.js -i <input.md> -o <output.pptx>
 
 # Quick test
@@ -47,7 +47,7 @@ LayoutEngine (layout_engine.js)
 Content Renderers
     ├── addCodeBlock() - gray background boxes
     ├── addBlockquote() - blue background boxes with icon
-    ├── addMathFormula() - KaTeX-rendered SVG images
+    ├── addMathFormula() - MathJax-rendered SVG images
     └── addMermaidDiagram() - via MermaidRenderer
         ↓
 Output: .pptx file
@@ -85,14 +85,11 @@ Output: .pptx file
 - `detectFormulas()` - regex-based detection of `$$...$$` block syntax
 - Handles escaped `\$` characters
 
-**math_renderer.js** - Formula rendering via KaTeX + Puppeteer:
-- `render()` - converts LaTeX to PNG using KaTeX + Puppeteer screenshot
-- Returns base64-encoded PNG data URLs for PPT embedding
+**math_renderer.js** - Formula rendering via MathJax SVG (mathjax-full):
+- `render()` - converts LaTeX to pure SVG using MathJax (no browser needed)
+- Returns base64-encoded SVG data URLs for PPT embedding
+- Strips `<mjx-container>` wrapper, replaces `currentColor` with `#000000`
 - Fallback placeholder for invalid/empty formulas
-
-**svg_parser.js** - SVG-to-PPT shapes (currently unused, reserved for future):
-- Handler registry architecture in `svg/handler_registry.js`
-- Element handlers: rect, circle, polygon, path, text
 
 ## Important Implementation Details
 

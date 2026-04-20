@@ -1,7 +1,7 @@
 {
   "name": "md-to-ppt-skill",
   "version": "1.0.0",
-  "description": "Markdown to PowerPoint converter skill with mermaid EMF/SVG rendering, editable shapes, extensible handler architecture, and smart layout",
+  "description": "Markdown to PowerPoint converter with Mermaid diagrams, MathJax SVG formulas, tables, blockquotes, and smart pagination",
   "main": "scripts/md_to_ppt.js",
   "scripts": {
     "convert": "node scripts/md_to_ppt.js"
@@ -10,8 +10,7 @@
     "@mermaid-js/mermaid-cli": "^10.6.1",
     "image-size": "^1.0.2",
     "mathjax-full": "^3.2.1",
-    "pptxgenjs": "^3.12.0",
-    "xml2js": "^0.6.2"
+    "pptxgenjs": "^3.12.0"
   },
   "keywords": [
     "markdown",

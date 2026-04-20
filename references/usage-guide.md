@@ -114,8 +114,8 @@ node scripts/md_to_ppt.js \
 
 | 格式          | 说明                      | 可编辑性                       | 依赖     |
 | ------------- | ------------------------- | ------------------------------ | -------- |
-| **EMF** | 默认格式，最佳 PPT 兼容性 | ✅ 原生可编辑（取消组合）      | Inkscape |
-| **SVG** | 矢量图，作为图片嵌入      | ⚠️ 可在 PPT 中手动转换为形状 | 无       |
+| **SVG** | 默认格式，矢量图嵌入      | ⚠️ 可在 PPT 中手动转换为形状 | 无       |
+| **EMF** | 最佳 PPT 可编辑性         | ✅ 原生可编辑（取消组合）      | Inkscape |
 | **PNG** | 光栅图，最高兼容性        | ❌                             | 无       |
 
 **安装依赖**：
@@ -296,22 +296,22 @@ node scripts/md_to_ppt.js \
 
 ### 示例 2: 指定 Mermaid 输出格式
 
-**EMF 格式（默认，推荐）**：
-
-```bash
-node scripts/md_to_ppt.js \
-  -i document.md \
-  -o output.pptx \
-  --mermaid-format emf
-```
-
-**SVG 格式（作为图片嵌入）**：
+**SVG 格式（默认）**：
 
 ```bash
 node scripts/md_to_ppt.js \
   -i document.md \
   -o output.pptx \
   --mermaid-format svg
+```
+
+**EMF 格式（可编辑，需 Inkscape）**：
+
+```bash
+node scripts/md_to_ppt.js \
+  -i document.md \
+  -o output.pptx \
+  --mermaid-format emf
 ```
 
 **PNG 格式（最高兼容性）**：
@@ -568,8 +568,8 @@ A: 完全可以，生成的是标准 .pptx 文件，可用 PowerPoint 或其他�
 **Q: Mermaid 图表可以导出为矢量图吗?**
 A: 是的，支持三种格式：
 
-- **EMF**（默认）：矢量格式，可在 PowerPoint 中取消组合编辑，需安装 Inkscape
-- **SVG**：矢量格式，作为图片嵌入，可在 PPT 中手动转换为形状
+- **SVG**（默认）：矢量格式，作为图片嵌入，可在 PPT 中右键"转换为形状"编辑
+- **EMF**：矢量格式，可在 PowerPoint 中取消组合编辑，需安装 Inkscape
 - **PNG**：光栅格式，最高兼容性
 
 使用 `--mermaid-format` 参数指定格式：
@@ -615,4 +615,4 @@ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
 $$
 ```
 
-公式通过 MathJax 渲染为 SVG 嵌入 PPT，可在 PPT 中转换为可编辑形状。暂不支持行内公式 `$...$`。
+公式通过 MathJax 渲染为纯 SVG 路径嵌入 PPT，可在 PPT 中右键"转换为形状"编辑。暂不支持行内公式 `$...$`。使用 `--math-scale` 调整大小（默认 2）。
