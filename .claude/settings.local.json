@@ -11,7 +11,8 @@
       "Bash(node -e \"var s=''x^2''; const katex = require\\(''katex''\\); const html = katex.renderToString\\(s, {output: ''html'', throwOnError: true}\\); console.log\\(''SUCCESS''\\); console.log\\(html.substring\\(0, 200\\)\\);\")",
       "Bash(node -e \":*)",
       "Bash(node:*)",
-      "Bash(npx skills:*)"
+      "Bash(npx skills:*)",
+      "WebSearch"
     ]
   }
 }
