@@ -175,6 +175,28 @@ function parseInlineMarkdown(text, baseOptions = {}) {
             }
         }
 
+        // 检查链接 [text](url)
+        if (text[i] === '[') {
+            let closeBracket = text.indexOf(']', i + 1);
+            if (closeBracket !== -1 && closeBracket + 1 < len && text[closeBracket + 1] === '(') {
+                let closeParen = text.indexOf(')', closeBracket + 2);
+                if (closeParen !== -1) {
+                    const linkText = text.slice(i + 1, closeBracket);
+                    const linkUrl = text.slice(closeBracket + 2, closeParen);
+                    result.push({
+                        text: linkText,
+                        options: {
+                            ...options,
+                            color: '0563C1',
+                            hyperlink: { url: linkUrl }
+                        }
+                    });
+                    i = closeParen + 1;
+                    continue;
+                }
+            }
+        }
+
         // 检查行内代码 `code`
         if (text[i] === '`') {
             let endPos = text.indexOf('`', i + 1);

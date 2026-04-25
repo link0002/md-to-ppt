@@ -1,3 +1,7 @@
+# agent
+.claude/
+.codebuddy/
+
 # Dependencies
 node_modules/
 

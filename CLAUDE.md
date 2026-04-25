@@ -15,17 +15,40 @@ A Markdown to PowerPoint converter that supports:
 ## Development Commands
 
 ```bash
-# Basic conversion (portrait, SVG format for mermaid)
-node scripts/md_to_ppt.js -i <input.md> -o <output.pptx>
-
-# Quick test
-node scripts/md_to_ppt.js -i test/test.md -o test/quick-test.pptx -l portrait --mermaid-format svg
-
-# Integration test
-node scripts/md_to_ppt.js -i test/integration-test.md -o test/integration-test.pptx -l portrait --mermaid-format svg
-
 # Show help
 node scripts/md_to_ppt.js --help
+
+# Basic conversion (portrait, SVG format for mermaid)
+node scripts/md_to_ppt.js -i <input.md> -o <output.pptx>
+```
+
+## Test Files
+
+测试 md 文件按用途分为 3 类：
+
+### 1. 集成测试 — `test/integration-test.md`
+
+全功能覆盖测试，包含所有核心功能和边界情况（当前覆盖约 95%）。每次发布前执行。
+
+```bash
+node scripts/md_to_ppt.js -i test/integration-test.md -o test/integration-test.pptx -l portrait --mermaid-format svg
+```
+
+### 2. 快速测试 — `test/quick-test.md`
+
+极简用例，只覆盖最核心功能（标题、列表、表格、代码块、Mermaid、引述），用于快速验证基本流程是否跑通。
+
+```bash
+node scripts/md_to_ppt.js -i test/quick-test.md -o test/quick-test.pptx -l portrait --mermaid-format svg
+```
+
+### 3. 分项测试 — `test/<feature>-test.md`
+
+针对某个特定功能的专项测试，可有多份，例如 `test/math-formula-test.md`。用于开发中快速验证某个功能模块，避免每次都跑完整集成测试。
+
+```bash
+# 示例：数学公式专项测试
+node scripts/md_to_ppt.js -i test/math-formula-test.md -o test/math-formula-test.pptx -l portrait --mermaid-format svg
 ```
 
 ## Architecture

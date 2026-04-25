@@ -1,26 +1,6 @@
 # 当制冷工程师学会用 AI：我用 AI 重构了技术规格书的工作流
 
----
-
-## 📌 配图 1：封面图
-
-**图片类型：** AI 生成图
-**推荐工具：** DALL-E 3 / Midjourney
-**图片尺寸：** 2.35:1（公众号封面推荐）
-
-**DALL-E 3 提示词：**
-
-```
-A modern HVAC engineer's workspace with a computer screen displaying a PowerPoint presentation showing refrigeration system diagrams, thermodynamic charts, and performance data tables. In the background, subtle elements of air conditioning equipment: an indoor unit wall-mounted, copper refrigerant pipes, a pressure gauge, and a compressor schematic. A holographic AI assistant is helping organize the technical documents. Cool blue and white color scheme representing refrigeration technology. Professional engineering context with temperature/COP calculation formulas floating subtly. Clean, minimalist style. No text overlays.
-```
-
-**中文提示词：**
-
-```
-现代暖通制冷工程师的工作空间，电脑屏幕显示 PowerPoint 演示文稿，包含制冷系统图、热力学图表和性能数据表。背景中有空调设备元素：壁挂式室内机、铜制冷剂管、压力表和压缩机示意图。全息 AI 助手正在帮助整理技术文档。冷色调蓝白配色代表制冷技术。专业工程环境，隐约漂浮着温度/COP 计算公式。简洁极简风格。无文字叠加。
-```
-
----
+![封面](./png/配图 1： 封面2.jpg)
 
 ## 痛点：300 页规格书的排版地狱
 
@@ -52,22 +32,7 @@ A modern HVAC engineer's workspace with a computer screen displaying a PowerPoin
 
 ---
 
-## 📌 配图 2：痛点场景图
-
-**图片类型：** AI 生成图
-**推荐工具：** DALL-E 3 / Midjourney
-
-**DALL-E 3 提示词：**
-
-```
-An exhausted engineer sitting in front of a computer late at night, surrounded by multiple monitors showing PowerPoint slides with misaligned text boxes and tables. The engineer looks frustrated, manually adjusting formatting elements. The room is dark with only monitor glow. Stress and frustration visible. Realistic style, office setting.
-```
-
-**中文提示词：**
-
-```
-深夜，一位疲惫的工程师坐在电脑前，周围多个显示器显示着 PowerPoint 幻灯片，文本框和表格不对齐。工程师看起来很沮丧，正在手动调整格式元素。房间昏暗，只有显示器发光。可见压力和挫败感。写实风格，办公环境。
-```
+![痛点场景图](./png/配图 2：痛点场景图.jpg)
 
 ---
 
@@ -228,30 +193,30 @@ node scripts/md_to_ppt.js -i spec.md -o spec.pptx
 
 **选项决策指引：**
 
-| 场景 | 推荐选项 |
-|------|----------|
-| 默认转换（无需任何额外选项） | 直接 `-i` `-o` 即可 |
-| 需要可编辑的 Mermaid 图表 | `--mermaid-format emf`（需安装 Inkscape） |
-| 横版演示（适合投影） | `-l landscape` |
-| 竖版布局（适合打印/规格书） | `-l portrait` |
-| 公式太小/太大 | `--math-scale 3` 或 `--math-scale 1`（默认 2） |
-| Mermaid 图表太小/太大 | `--mermaid-scale 3` 或 `--mermaid-scale 1`（默认 2） |
-| 无需 Mermaid 图表（加速转换） | `--no-mermaid` |
-| 无需数学公式 | `--no-math` |
+| 场景                          | 推荐选项                                                 |
+| ----------------------------- | -------------------------------------------------------- |
+| 默认转换（无需任何额外选项）  | 直接 `-i` `-o` 即可                                  |
+| 需要可编辑的 Mermaid 图表     | `--mermaid-format emf`（需安装 Inkscape）              |
+| 横版演示（适合投影）          | `-l landscape`                                         |
+| 竖版布局（适合打印/规格书）   | `-l portrait`                                          |
+| 公式太小/太大                 | `--math-scale 3` 或 `--math-scale 1`（默认 2）       |
+| Mermaid 图表太小/太大         | `--mermaid-scale 3` 或 `--mermaid-scale 1`（默认 2） |
+| 无需 Mermaid 图表（加速转换） | `--no-mermaid`                                         |
+| 无需数学公式                  | `--no-math`                                            |
 
 **完整选项列表：**
 
-| 选项 | 简写 | 说明 | 默认值 |
-|------|------|------|--------|
-| `--input` | `-i` | 输入 markdown 文件（必需） | - |
-| `--output` | `-o` | 输出 pptx 文件（必需） | - |
-| `--layout` | `-l` | `portrait` / `landscape` | `portrait` |
-| `--font` | `-f` | 字体名称 | 微软雅黑 |
-| `--mermaid-format` | - | `svg` / `emf` / `png` | `svg` |
-| `--mermaid-scale` | - | Mermaid 渲染缩放 | `2` |
-| `--no-mermaid` | - | 禁用 Mermaid 渲染 | - |
-| `--no-math` | - | 禁用数学公式渲染 | - |
-| `--math-scale` | - | 公式渲染缩放比例 | `2` |
+| 选项                 | 简写   | 说明                         | 默认值       |
+| -------------------- | ------ | ---------------------------- | ------------ |
+| `--input`          | `-i` | 输入 markdown 文件（必需）   | -            |
+| `--output`         | `-o` | 输出 pptx 文件（必需）       | -            |
+| `--layout`         | `-l` | `portrait` / `landscape` | `portrait` |
+| `--font`           | `-f` | 字体名称                     | 微软雅黑     |
+| `--mermaid-format` | -      | `svg` / `emf` / `png`  | `svg`      |
+| `--mermaid-scale`  | -      | Mermaid 渲染缩放             | `2`        |
+| `--no-mermaid`     | -      | 禁用 Mermaid 渲染            | -            |
+| `--no-math`        | -      | 禁用数学公式渲染             | -            |
+| `--math-scale`     | -      | 公式渲染缩放比例             | `2`        |
 
 > 一行命令，Markdown 变成 PPT
 
@@ -272,41 +237,11 @@ node scripts/md_to_ppt.js -i spec.md -o spec.pptx
 
 ---
 
-## 📌 配图 3：工具能力展示图
-
-**图片类型：** AI 生成图
-**推荐工具：** DALL-E 3 / Midjourney
-
-**DALL-E 3 提示词：**
-
-```
-A clean, professional technical document page showing various elements: a data comparison table with neatly aligned columns, a flowchart diagram with connected boxes, mathematical formulas with elegant notation, and a code block with syntax highlighting. All elements are well-organized and visually appealing. Blue and white color scheme. No text content, just visual representation of document elements.
-```
-
-**中文提示词：**
-
-```
-一份干净专业的技术文档页面，展示各种元素：数据对比表列对齐整齐、流程图连接框、优雅的数学公式、语法高亮的代码块。所有元素组织良好，视觉吸引人。蓝白配色方案。只有视觉元素，无具体文字内容。
-```
+![工具能力展示图](./png/配图 3：工具能力展示图.jpg)
 
 ---
 
-## 📌 配图 4：Before/After 对比图
-
-**图片类型：** AI 生成图
-**推荐工具：** DALL-E 3 / Midjourney
-
-**DALL-E 3 提示词：**
-
-```
-Split screen comparison image. Left side "Before": messy PowerPoint slides with misaligned text, inconsistent formatting, cluttered layout. Right side "After": clean, professional slides with perfect alignment, consistent styling, organized layout. Arrows pointing from left to right with label "5 minutes". Red theme on left, green theme on right. Infographic style.
-```
-
-**中文提示词：**
-
-```
-分屏对比图。左侧"之前"：混乱的 PPT 幻灯片，文本不对齐，格式不一致，布局杂乱。右侧"之后"：干净专业的幻灯片，完美对齐，风格一致，布局有序。从左到右的箭头标记"5分钟"。左侧红色主题，右侧绿色主题。信息图风格。
-```
+![Before/After 对比图](./png/配图 4：Before_After 对比图.jpg)
 
 ---
 
@@ -329,22 +264,7 @@ Split screen comparison image. Left side "Before": messy PowerPoint slides with 
 
 ---
 
-## 📌 配图 5：工程师转变图
-
-**图片类型：** AI 生成图
-**推荐工具：** DALL-E 3 / Midjourney
-
-**DALL-E 3 提示词：**
-
-```
-Transformation illustration. Left side: an engineer buried under piles of paper, stressed, adjusting formatting. Right side: the same engineer standing confidently, working on architectural diagrams with AI assistance. A bridge connects the two sides with label "AI + Tools". Modern flat illustration style, blue and green colors. Inspiring and empowering atmosphere.
-```
-
-**中文提示词：**
-
-```
-转变插图。左侧：工程师被埋在纸堆下，压力大，正在调整格式。右侧：同一位工程师自信站立，在 AI 辅助下工作架构图。一座桥连接两侧，标记"AI + 工具"。现代扁平插画风格，蓝绿色调。鼓舞人心的氛围。
-```
+![工程师转变图](./png/配图 5：工程师转变图.jpg)
 
 ---
 
@@ -374,23 +294,3 @@ AI 时代的工程师，应该从"格式工"变成"逻辑架构师"。工具链�
 *工具：md-to-ppt — Markdown 转 PowerPoint 转换器*
 
 ---
-
-## 附录：AI 配图生成清单
-
-### 已在文档中 ✅
-
-- [X] 工作流对比图（Mermaid 流程图）
-- [X] 一行命令代码块
-
-### 需要用 AI 生成的 🎨
-
-| 配图                | 位置       | DALL-E 3 提示词 | 状态 |
-| ------------------- | ---------- | --------------- | ---- |
-| 封面图              | 文章开头   | ✅ 已写         | [ ]  |
-| 痛点场景图          | 痛点后     | ✅ 已写         | [ ]  |
-| 工具能力展示图      | 能力展示后 | ✅ 已写         | [ ]  |
-| Before/After 对比图 | 效果对比前 | ✅ 已写         | [ ]  |
-| 工程师转变图        | 思考部分   | ✅ 已写         | [ ]  |
-| 开源理念图          | 开源部分   | ✅ 已写         | [ ]  |
-
-**总计：6 张 AI 生成图 + 1 张 Mermaid 流程图 + 1 个代码块 = 8 张配图**
