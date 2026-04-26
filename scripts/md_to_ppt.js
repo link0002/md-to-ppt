@@ -127,9 +127,37 @@ async function main() {
     }
 
     const fs = require("fs");
+    const path = require("path");
+
     if (!fs.existsSync(options.input)) {
         console.error(`Error: File not found - ${options.input}`);
         process.exit(1);
+    }
+
+    // 检查输出文件是否被锁定（如 PowerPoint 正在打开）
+    if (fs.existsSync(options.output)) {
+        try {
+            // 尝试以追加模式打开，检查是否可写入
+            const fd = fs.openSync(options.output, 'r+');
+            fs.closeSync(fd);
+        } catch (e) {
+            if (e.code === 'EBUSY' || e.code === 'EPERM' || e.code === 'EACCES') {
+                console.error(`\n⚠️  输出文件被锁定: ${options.output}`);
+                console.error('   可能原因：文件正在 PowerPoint 中打开');
+                console.error('\n   解决方案：');
+                console.error('   1. 关闭 PowerPoint 中的该文件');
+                console.error('   2. 或使用新的输出路径，例如：');
+
+                // 生成带时间戳的替代文件名
+                const ext = path.extname(options.output);
+                const base = path.basename(options.output, ext);
+                const dir = path.dirname(options.output);
+                const timestamp = new Date().toISOString().slice(11, 19).replace(/:/g, '-');
+                const altOutput = path.join(dir, `${base}-${timestamp}${ext}`);
+                console.error(`      -o "${altOutput}"`);
+                process.exit(1);
+            }
+        }
     }
 
     const converter = new MarkdownToPptConverter(options);

@@ -64,12 +64,12 @@ node scripts/md_to_ppt.js -i <input.md> -o <output.pptx> [options]
 | `| 列1 | 列2 |` | 表格（支持单元格内联格式） |
 | `> 内容` | 浅蓝引述框（`E8F4FD`） |
 | `$$...$$` | MathJax 渲染为 SVG，居中显示 |
+| `[text](url)` | 蓝色超链接文本 |
 
 ### 不支持的语法
 
 - **行内公式** `$...$` — 不渲染，原样输出为文本
 - **图片** `![]()` — 不支持
-- **链接** `[text](url)` — 不支持
 - **HTML** — 不支持
 
 ### Mermaid 图表类型
@@ -93,6 +93,27 @@ node scripts/md_to_ppt.js -i <input.md> -o <output.pptx> [options]
 - 内容超出自动分页
 - 数学公式为 SVG 图片，在 PPT 中可右键"转换为形状"
 - 默认字体：微软雅黑
+
+## 常见问题
+
+### 输出文件被锁定
+
+当输出文件正在 PowerPoint 中打开时，脚本会检测到并提示：
+
+```
+⚠️  输出文件被锁定: output.pptx
+   可能原因：文件正在 PowerPoint 中打开
+
+   解决方案：
+   1. 关闭 PowerPoint 中的该文件
+   2. 或使用新的输出路径，例如：
+      -o "output-22-30-15.pptx"
+```
+
+**处理方式**：
+1. 关闭 PowerPoint 中打开的该文件，重新执行
+2. 使用脚本建议的带时间戳的新文件名
+3. 手动指定新的输出路径：`-o new-output.pptx`
 
 ## 参考
 
