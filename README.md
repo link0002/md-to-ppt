@@ -29,13 +29,17 @@ graph LR
 
 ```bash
 # 安装到全局
-npx skills add https://github.com/YOUR_USERNAME/md-to-ppt -g -a claude-code
+npx skills add https://github.com/link0002/md-to-ppt -g -a claude-code
 ```
 
-### 方式二：手动安装
+### 方式二：直接使用
 
-1. 克隆仓库到本地
-2. 在 Claude Code 的 `.agents/skills/` 目录创建软链接
+```bash
+git clone https://github.com/link0002/md-to-ppt.git
+cd md-to-ppt
+npm install
+node scripts/md_to_ppt.js -i input.md -o output.pptx
+```
 
 ## 使用方式
 
@@ -81,10 +85,14 @@ Agent 会自动调用这个 Skill，生成 Markdown 并转换为 PPT。
 | `--no-math` | - | 禁用数学公式渲染 | - |
 | `--no-fallback` | - | 禁用 PNG 降级 | - |
 
-## 快速开始（手动调用）
+## 快速开始
 
 ```bash
+# 转换你的 Markdown 为 PPT
 node scripts/md_to_ppt.js -i input.md -o output.pptx
+
+# 试试内置示例
+node scripts/md_to_ppt.js -i example/integration-test.md -o example/integration-test.pptx -l portrait --mermaid-format svg
 ```
 
 ## 依赖
