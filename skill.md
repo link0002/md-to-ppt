@@ -11,6 +11,12 @@ description: |
 
 # Markdown 转 PowerPoint 转换器
 
+## 安装
+
+```bash
+npx skills add https://github.com/link0002/md-to-ppt -g -a '*'
+```
+
 ## 基本用法
 
 ```bash
@@ -117,5 +123,4 @@ node scripts/md_to_ppt.js -i <input.md> -o <output.pptx> [options]
 
 ## 参考
 
-- 架构与代码结构见 `CLAUDE.md`
 - 详细使用示例和故障排除见 `references/usage-guide.md`

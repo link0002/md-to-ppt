@@ -384,50 +384,6 @@ class MarkdownToPptConverter {
         const slide = this.pres.addSlide();
         this.slideNumber++;
 
-        // 主标题框
-        slide.addShape(this.pres.shapes.RECTANGLE, {
-            x: this.layout.row1.titleBox.x,
-            y: this.layout.row1.titleBox.y,
-            w: this.layout.row1.titleBox.w,
-            h: this.layout.row1.titleBox.h,
-            fill: { color: "FFFFFF" },
-            line: { color: this.layout.row1.titleBox.borderColor, width: 1 }
-        });
-
-        slide.addText(this.title, {
-            x: this.layout.row1.titleBox.x + 0.05,
-            y: this.layout.row1.titleBox.y,
-            w: this.layout.row1.titleBox.w - 0.1,
-            h: this.layout.row1.titleBox.h,
-            fontSize: this.layout.row1.titleBox.fontSize,
-            fontFace: this.font,
-            color: "000000",
-            valign: "middle",
-            align: "center"
-        });
-
-        // 页码框
-        slide.addShape(this.pres.shapes.RECTANGLE, {
-            x: this.layout.row1.pageNumberBox.x,
-            y: this.layout.row1.pageNumberBox.y,
-            w: this.layout.row1.pageNumberBox.w,
-            h: this.layout.row1.pageNumberBox.h,
-            fill: { color: "FFFFFF" },
-            line: { color: this.layout.row1.pageNumberBox.borderColor, width: 1 }
-        });
-
-        slide.addText(String(this.slideNumber), {
-            x: this.layout.row1.pageNumberBox.x,
-            y: this.layout.row1.pageNumberBox.y,
-            w: this.layout.row1.pageNumberBox.w,
-            h: this.layout.row1.pageNumberBox.h,
-            fontSize: this.layout.row1.pageNumberBox.fontSize,
-            fontFace: this.font,
-            color: "000000",
-            valign: "middle",
-            align: "center"
-        });
-
         // 主标题（居中）
         slide.addText(slideData.title, {
             x: this.width * 0.1,

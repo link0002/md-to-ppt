@@ -400,16 +400,16 @@ stateDiagram-v2
 ```mermaid
 gantt
     title 项目进度计划
-    dateFormat  YYYY-MM-DD
+    dateFormat  MM-DD
     section 需求阶段
-    需求分析           :a1, 2024-01-01, 30d
+    需求分析           :a1, 01-01, 30d
     需求评审           :after a1, 5d
     section 开发阶段
-    编码实现           :2024-02-15, 45d
-    单元测试           :2024-03-15, 20d
+    编码实现           :02-15, 45d
+    单元测试           :03-15, 20d
     section 测试阶段
-    集成测试           :2024-04-01, 15d
-    验收测试           :2024-04-15, 10d
+    集成测试           :04-01, 15d
+    验收测试           :04-15, 10d
 ```
 
 ### 6.8 饼图

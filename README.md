@@ -28,8 +28,8 @@ graph LR
 ### 方式一：通过 npx skills 安装（推荐）
 
 ```bash
-# 安装到全局
-npx skills add https://github.com/link0002/md-to-ppt -g -a claude-code
+# 安装到全局（对所有 Agent 可用）
+npx skills add https://github.com/link0002/md-to-ppt -g -a '*'
 ```
 
 ### 方式二：直接使用
